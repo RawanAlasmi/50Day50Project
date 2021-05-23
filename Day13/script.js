@@ -1,36 +1,61 @@
-const jokeEl = document.getElementById('joke')
-const jokeBtn = document.getElementById('jokeBtn')
+const tagsEl = document.getElementById('tags')
+const textarea = document.getElementById('textarea')
 
-jokeBtn.addEventListener('click', generateJoke)
+textarea.focus()
 
-generateJoke()
+textarea.addEventListener('keyup', (e) => {
+    createTags(e.target.value)
 
-// USING ASYNC/AWAIT
-async function generateJoke() {
-  const config = {
-    headers: {
-      Accept: 'application/json',
-    },
-  }
+    if(e.key === 'Enter') {
+        setTimeout(() => {
+            e.target.value = ''
+        }, 10)
 
-  const res = await fetch('https://icanhazdadjoke.com', config)
+        randomSelect()
+    }
+})
 
-  const data = await res.json()
+function createTags(input) {
+  const tags = input.split(',').filter(tag => tag.trim() !== '').map(tag => tag.trim())
+  
+  tagsEl.innerHTML = ''
 
-  jokeEl.innerHTML = data.joke
+  tags.forEach(tag => {
+      const tagEl = document.createElement('span')
+      tagEl.classList.add('tag')
+      tagEl.innerText = tag
+      tagsEl.appendChild(tagEl)
+  })
 }
 
-// USING .then()
-// function generateJoke() {
-//   const config = {
-//     headers: {
-//       Accept: 'application/json',
-//     },
-//   }
 
-//   fetch('https://icanhazdadjoke.com', config)
-//     .then((res) => res.json())
-//     .then((data) => {
-//       jokeEl.innerHTML = data.joke
-//     })
-// }
+function randomSelect(){
+  const times = 30
+
+  const interval = setInterval(() => {
+    const randomTag = pickRandomTag()
+    highlightTag(randomTag)
+    setTimeout(() => {
+      unHighlightTag(randomTag)
+    }, 100)
+  }, 100);
+  setTimeout(() => {
+    clearInterval(interval)
+    setTimeout(() => {
+      const randomTag = pickRandomTag()
+      highlightTag(randomTag)
+    }, 100)
+  }, times * 100)
+}
+function pickRandomTag() {
+  const tags = document.querySelectorAll('.tag')
+  return tags[Math.floor(Math.random() * tags.length)]
+}
+
+function highlightTag(tag){
+  tag.classList.add('highlight')
+}
+
+function unHighlightTag(tag){
+  tag.classList.remove('highlight')
+}
